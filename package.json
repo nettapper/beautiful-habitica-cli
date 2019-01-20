@@ -27,6 +27,7 @@
   "homepage": "https://github.com/nettapper/beautiful-habitica-cli#readme",
   "dependencies": {
     "chalk": "^2.4.2",
+    "data-store": "^3.1.0",
     "figlet": "^1.2.1"
   }
 }

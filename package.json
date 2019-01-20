@@ -30,5 +30,8 @@
     "data-store": "^3.1.0",
     "figlet": "^1.2.1",
     "inquirer": "^6.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1"
   }
 }

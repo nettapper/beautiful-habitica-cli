@@ -3,31 +3,11 @@
 var figlet = require("figlet");
 var chalk = require("chalk");
 var inquirer = require("inquirer");
-const Store = require("data-store");
-
-const store = new Store("beautiful-habitica-cli");
-const API_TOKEN = "habitica-api-token";
-const USER_IDENTITY = "habitica-user-idenity";
+const persistence = require("./persistence/index.js");
 
 // Testing the Chalk and Figlet Output
 console.log(chalk.redBright(figlet.textSync("Beautiful")));
 console.log(chalk.cyanBright(figlet.textSync("Habitica")));
-
-// Testting the Data-Store
-// console.log(store.set(API_TOKEN, "hello world"));
-let getApiToken = () => { return store.get(API_TOKEN);};
-let getUserIdentity = () => { return store.get(USER_IDENTITY);};
-let setApiToken = (s) => { return store.set(API_TOKEN, s);};
-let setUserIdentity = (s) => { return store.set(USER_IDENTITY, s);};
-let apiTokenExists = () => { return !(store.get(API_TOKEN) === undefined);};
-let userIdentityExists = () => { return !(store.get(USER_IDENTITY) === undefined);};
-let clearDataStore = function() {
-  setApiToken(undefined);
-  setUserIdentity(undefined);
-};
-
-// use to 'clear' the data-store
-// clearDataStore();
 
 // Testing the user input with Inquirer
 let isSomething = function(s) {
@@ -50,10 +30,13 @@ let apiTokenQuestion = {
 };
 
 let questions = [];
-if(!userIdentityExists()) questions.push(userIdentityQuestion);
-if(!apiTokenExists()) questions.push(apiTokenQuestion);
+if(!persistence.userIdentityExists()) questions.push(userIdentityQuestion);
+if(!persistence.apiTokenExists()) questions.push(apiTokenQuestion);
 
 inquirer.prompt(questions)
   .then(answers => {
-    console.log(answers);
+    if(answers.userIdentity !== undefined)
+      persistence.setUserIdentity(answers.userIdentity);
+    if(answers.apiToken !== undefined)
+      persistence.setApiToken(answers.apiToken);
   });

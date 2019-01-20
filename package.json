@@ -1,0 +1,25 @@
+{
+  "name": "beautiful-habitica-cli",
+  "version": "0.0.0",
+  "description": "A Command Line Interface for Habitica that focuses on beauty and simplicity.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nettapper/beautiful-habitica-cli.git"
+  },
+  "keywords": [
+    "habitica",
+    "habitica-cli",
+    "habit",
+    "todo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nettapper/beautiful-habitica-cli/issues"
+  },
+  "homepage": "https://github.com/nettapper/beautiful-habitica-cli#readme"
+}

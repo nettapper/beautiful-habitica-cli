@@ -5,9 +5,10 @@ var chalk = require("chalk");
 var inquirer = require("inquirer");
 var rx = require("rxjs");
 const persistence = require("./persistence/index.js");
+const api = require("./api/api.js");
 
 // Testing the Chalk and Figlet Output
-console.log(chalk.redBright(figlet.textSync("Beautiful")));
+console.log(chalk.cyanBright(figlet.textSync("Beautiful")));
 console.log(chalk.cyanBright(figlet.textSync("Habitica")));
 
 // Testing the user input with Inquirer
@@ -41,9 +42,25 @@ let apiTokenQuestion = {
   "message": "Please enter your API Token:",
   "validate": isSomething
 };
+const USERNAME_NAME = "username";
+let usernameQuestion = {
+  "type": "input",
+  "name": USERNAME_NAME,
+  "message": "Please enter your username",
+  "validate": isSomething
+};
+const PASSWORD_NAME = "password";
+let passwordQuestion = {
+  "type": "password",
+  "name": PASSWORD_NAME,
+  "message": "Please enter your password",
+  "validate": isSomething
+};
 
 let questions = [];
 let prompts = new rx.Subject();
+let username = "";
+let password = "";
 
 // NOTE: you must register the observers before notifying them
 // ie. add the questions AFTER passing the rx.Observable to inquirer
@@ -52,17 +69,39 @@ inquirer.prompt(prompts.asObservable()).ui.process.subscribe(
     // how does the user want to authenticate?
     if(answers.name === AUTHENTICATION_CHOICE_NAME) {
       if(answers.answer === EXIT_OPTION) prompts.complete();
-      if(answers.answer === USERPASS_OPTION) prompts.complete();
+      if(answers.answer === USERPASS_OPTION) {
+        prompts.next(usernameQuestion);
+        prompts.next(passwordQuestion);
+      }
       if(answers.answer === IDTOKEN_OPTION) {
         if(!persistence.userIdentityExists()) prompts.next(userIdentityQuestion);
         if(!persistence.apiTokenExists()) prompts.next(apiTokenQuestion);
       }
     }
-    if(answers.name === USER_IDENTITY_NAME) {
+    if(answers.name === USER_IDENTITY_NAME)
       persistence.setUserIdentity(answers.answer);
-    }
     if(answers.name === API_TOKEN_NAME)
       persistence.setApiToken(answers.answer);
+    if(answers.name === USERNAME_NAME)
+      username = answers.answer;
+    if(answers.name === PASSWORD_NAME)
+      password = answers.answer;
+    if(username && password) {
+      api.getTokenAndUserIdPromise(username, password)
+        .then(function (response) {
+          persistence.setUserIdentity(response.data.data.id);
+          persistence.setApiToken(response.data.data.apiToken);
+          prompts.complete();
+        })
+        .catch(function (error) {
+          // console.log(error);
+          console.error(chalk.redBright("Error logging you in..."));
+          console.error(chalk.redBright("Error code: ") + chalk.yellow(error.response.status));
+          prompts.next(authenticationChoiceQuestion);
+        });
+      username = "";
+      password = "";
+    }
     // does the datastore have the creds?
     // if so, then nothing more to ask the user
     if(persistence.userIdentityExists() && persistence.apiTokenExists()) prompts.complete();
@@ -71,7 +110,7 @@ inquirer.prompt(prompts.asObservable()).ui.process.subscribe(
     console.log("Error: ", err);
   },
   function () {
-    console.log("Completed");
+    console.log(chalk.magenta("Thank You!"));
   }
 );
 
